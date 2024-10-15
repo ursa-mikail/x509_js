@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="shortcut icon" href="https://avatars.githubusercontent.com/u/178732451?v=4&size=64" type="image/x-icon">
+    <title>X.509 certificate generation with RSA or ECDSA signing in JavaScript</title>
+
+    <script src="./X509_certificate_files/jquery.min.js" type="text/javascript"></script>
+
+    <link href="./X509_certificate_files/bootstrap.min.css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="./X509_certificate_files/MathJax.js"></script>
+    <script src="./X509_certificate_files/bootstrap.min.js" type="text/javascript"></script>
+ 
+    <link href="./X509_certificate_files/site.css" rel="stylesheet" type="text/css">
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="./X509_certificate_files/js"></script>
+    <script>window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-KX6DK1KK2X');</script>
+
+</head>
+
+<body style="width:100%;height:100%">
+<!-- watermark [START]: call in body -->
+    <script src="./X509_certificate_files/watermark_page.js" type="text/javascript"></script>
+<!-- watermark [END] -->
+
+<div id="page-wrap">
+    <div class="w3-container">
+        <div id="header" class="row">
+            <div id="title"></div>
+            <div id="logindisplay">
+
+    <style>
+        /* Style for left alignment */
+        .left-align {
+            text-align: left;
+        }
+    </style>
+
+    <div class="left-align">
+        <text><strong id="helloText"></strong></text>
+    </div>
+    <script type="text/javascript" src="./X509_certificate_files/load_and_type_random_line.js"></script>
+
+            </div>
+
+            <div id="tabs_container">
+                <div class="invertedshiftdown">
+                    <ul>
+                        <li><a id="homeLink" href="#">Home</a></li>
+                        <li class="current"><a id="indexLink" href="#">X509 certificate</a></li>
+                        <li><a id="link_to_js_cipher" href="#">JS ciphers</a></li>
+                        <li><a id="link_to_scrambler" href="#">scrambler</a></li>
+
+                        <li><a id="link_to_about" href="#">About</a></li>                        
+    <script>
+        var homeURL = "https://ursa-mikail.github.io/";
+        var home_ext = "mikail-eliyah.github.io/";
+        document.getElementById("homeLink").href = homeURL + home_ext;
+        document.getElementById("indexLink").href = homeURL + home_ext + "index";
+        document.getElementById("link_to_about").href = homeURL + home_ext + "about";
+        document.getElementById("link_to_scrambler").href = homeURL + "scrambler";
+        document.getElementById("link_to_js_cipher").href = homeURL + "cipher_js";
+    </script>
+
+                    </ul>
+                </div>
+            </div>
+         
+            <div id="main" class="row">
+
+<img src="./X509_certificate_files/header_js.gif" align="left" hspace="0" vspace="0" width="200px" alt="Pigpen" class="has-border">
+<h1 id="logo">X.509 certificate generation with RSA or ECDSA signing in JavaScript</h1>
+
+<div id="home">
+<b>[<a href="https://ursa-mikail.github.io/mikail-eliyah.github.io/" target="_top">Home</a>]</b>
+</div>
+
+ This page will generate either RSA and ECC key pairs, and then generate X.509 certificates, using either a signature of SHA1withRSA or SHA256withECDSA. For RSA signing we use an RSA private key to sign the certificate, and with ECDSA signing we use an ECC private key to sign the certificate.<p></p>
+
+<script src="./X509_certificate_files/jsrsasign-all-min.js"></script>
+<script src="./X509_certificate_files/generate_certs.js"></script>
+
+<div class="indented">
+    <table width="100%">
+        <tbody><tr>
+            <th valign="top">Method</th>
+            <td style="text-align:left">
+
+                <p>
+                    RSA: 
+                    <input type="button" class="btn btn-medium btn-success" onclick="gorsa(512)" value="Generate RSA 512">
+                    <input type="button" class="btn btn-medium btn-success" onclick="gorsa(1024)" value="Generate RSA 1024">
+                    <input type="button" class="btn btn-medium btn-success" onclick="gorsa(2048)" value="Generate RSA 2048">
+                    
+                </p>
+
+                <p>
+                    ECC: 
+                    <input type="button" class="btn btn-medium btn-warning" onclick="goecc(&#39;secp256r1&#39;)" value="Secp256r1 (P-256) ECDSA Signed">
+                    <input type="button" class="btn btn-medium btn-warning" onclick="goecc(&#39;secp256k1&#39;)" value="Secp256k1 (Ethereum) ECDSA Signed">
+                    <input type="button" class="btn btn-medium btn-warning" onclick="goecc(&#39;secp384r1&#39;)" value="secp384r1 ECDSA Signed">
+                </p>
+
+            </td>
+        </tr>
+
+        <tr>
+            <th valign="top" width="15%">Private Key (scroll of more details)</th>
+            <td>
+                <textarea cols="20" id="privatekey" name="privatekey" rows="4" style="width:100%"></textarea>
+
+            </td>
+        </tr>
+        <tr>
+            <th valign="top">Public Key  (scroll of more details)</th>
+            <td>
+                <textarea cols="20" id="publickey" name="publickey" rows="4" style="width:100%"></textarea>
+
+            </td>
+        </tr>
+
+        <tr>
+            <th valign="top">X509</th>
+            <td>
+                <textarea cols="20" id="X509" name="X509" rows="20" style="width:100%"></textarea>
+
+            </td>
+        </tr>
+
+    </tbody></table>
+
+</div>
+<h2>Theory</h2>
+<p> 
+    X.509 was initially defined by the ISO in 1988 - as part of their OSI (Open System Integration) approach. The focus of X.509 is to bind a given identity to a public key and thus prove digital signatures. Their basic structure is based on Abstract Syntax Notation One (ASN.1). To advance their adoption, the X.509 format was further standardized on the Internet with RFC 3279 [<a href="#reference1">1</a>]:
+</p>
+
+<p><img src="./X509_certificate_files/x509.png" width="700px"></p>
+
+<p>We can add many elements to a digital certificate, including:</p>
+<pre>Version Number
+Serial Number
+Signature Algorithm ID
+Issuer Name
+Validity Not Before
+Validity Not After
+Subject name
+Public Key Algorithm
+Subject Public Key
+Certificate Signature Algorithm
+Certificate Signature
+</pre>
+
+<p>
+    These elements can be matched to the requirement, such as for the subject and the issuer's common name. An important element is a date that the certificate is valid from (Validity Not Before) and to (Validity Not After). A certificate which has a validity date not after that is before the current date is likely to be marked as untrusted.
+</p>
+    <p>If we look at a Google.com certificate, we can see some of these elements, including the subject and issuer name. This format includes CN (Common Name), O (Organisation) and C (Country):</p>
+
+    <pre>
+site_url='https://example.com'
+curl -v --insecure $site_url 2>&1 | awk '/^*  subject:/ {print $0}'
+
+> *  subject: C=US; ST=California; L=Los Angeles; O=Internet?Corporation?for?Assigned?Names?and?Numbers; CN=www.example.org
+
+site_url='example.com'
+echo | openssl s_client -servername "$site_url" -connect "$site_url":443 2>/dev/null | openssl x509 -noout -subject
+
+> subject=C = US, ST = California, L = Los Angeles, O = Internet\C2\A0Corporation\C2\A0for\C2\A0Assigned\C2\A0Names\C2\A0and\C2\A0Numbers, CN = www.example.org
+
+echo | openssl s_client -servername "$site_url" -connect "$site_url":443 2>/dev/null | openssl x509 -noout -issuer -dates -pubkey
+
+>
+issuer=C = US, O = DigiCert Inc, CN = DigiCert Global G2 TLS RSA SHA256 2020 CA1
+notBefore=Jan 30 00:00:00 2024 GMT
+notAfter=Mar  1 23:59:59 2025 GMT
+-----BEGIN PUBLIC KEY-----
+MII...QAB
+-----END PUBLIC KEY-----
+
+    </pre>
+ 
+<h2>Coding</h2>
+<p>Some JavaScript coding for creating an X.509 certificate is:</p>
+<pre>    
+    ....
+</pre>
+
+<p>we display in a PEM and in an ASN.1 format. With PEM we have a Base64 form - which is easy to port across systems. With ASN.1 we can see the details of the certificate contents. Sample for ECDSA is:</p>
+<pre>ECC Certificate [SHA256withECDSA]: (secp256r1)
+-----BEGIN CERTIFICATE-----
+MII...
+:
+...5wDL
+-----END CERTIFICATE-----
+</pre>
+<pre>
+# Step 1: Get the certificate in PEM format
+site_url='example.com'
+echo | openssl s_client -servername "$site_url" -connect "$site_url":443 2>/dev/null | openssl x509 -outform PEM -out cert.pem
+
+# Step 2: Convert the PEM certificate to DER format
+openssl x509 -in cert.pem -outform der -out cert.der
+
+# Step 3: Parse the DER certificate for ASN.1 structure
+openssl asn1parse -in cert.der -inform der -i
+
+rm -rf cert.der cert.pem
+</pre>
+<p>With ASN.1 we define an OID. In this case "1.2.840.10045.4.3.2" identifies ECDSA with SHA256 signing, and "2.5.4.3" identifies the common name of either the subject or the issuer. For an RSA signed certificate, a sample run gives [here]:</p>
+<pre>RSA Signed Certificate [SHA1withRSA]: (512 bits)
+-----BEGIN CERTIFICATE-----
+MII...
+:
+...SA==
+-----END CERTIFICATE-----
+</pre>
+
+<h2>References</h2>
+<p id="reference1">[1] RFC 3279, Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile [<a href="https://tools.ietf.org/html/rfc3279" target="_blank">here</a>] </p>
+
+<p>A list of object IDs:</p>
+<pre><b>Hashing:</b>
+MD2	1.2.840.113549.2.2
+MD5	1.2.840.113549.2.5
+SHA-1	1.3.14.3.2.26
+SHA-224	2.16.840.1.101.3.4.2.4
+SHA-256	2.16.840.1.101.3.4.2.1
+SHA-394	2.16.840.1.101.3.4.2.2
+SHA-512	2.16.840.1.101.3.4.2.3
+
+
+<b>Public key:</b>
+RSA Encryption	1.2.840.113549.1.1.1
+DSA	1.2.840.10040.4.1
+Diffie-Hellman (dhPublicNumber)	1.2.840.10046.2.1
+ECC (ecPublicKey)  	1.2.840.10045.2.1
+md2WithRsaEncryption	1.2.840.113549.1.1.2
+
+<b>Signatures:</b>
+md5WithRsaEncryption	1.2.840.113549.1.1.4
+sha1WithRsaEncryption	1.2.840.113549.1.1.5
+sha224WithRsaEncryption  	1.2.840.113549.1.1.14
+sha256WithRsaEncryption	1.2.840.113549.1.1.11
+sha384WithRsaEncryption	1.2.840.113549.1.1.12
+sha512WithRsaEncryption	1.2.840.113549.1.1.13
+dsaWithSha1	1.2.840.10040.4.3
+dsaWithSha224	2.16.840.1.101.3.4.3.1
+dsaWithSha256	2.16.840.1.101.3.4.3.2
+ecdsaWithSha1  	1.2.840.10045.4.1
+ecdsaWithSha224	1.2.840.10045.4.3.1
+ecdsaWithSha256	1.2.840.10045.4.3.2
+ecdsaWithSha384	1.2.840.10045.4.3.3
+ecdsaWithSha512	1.2.840.10045.4.3.4
+
+<b>Password Base Encryption Algorithms:</b>
+pbeWithMd2AndDesCbc	1.2.840.113549.1.5.1
+pbeWithMd5AndDesCbc	1.2.840.113549.1.5.3
+pbeWithSha1AndDesCbc	1.2.840.113549.1.5.10
+pbeWithMd2AndRc2Cbc	1.2.840.113549.1.5.4
+pbeWithMd5AndRc2Cbc	1.2.840.113549.1.5.6
+pbeWithSha1AndRc2Cbc	1.2.840.113549.1.5.11
+pbeWithSha1And40BitRc2Cbc	1.2.840.113549.1.12.1.6
+pbeWithSha1And128BitRc2Cbc	1.2.840.113549.1.12.1.5
+pbeWithSha1And40BitRc4	1.2.840.113549.1.12.1.2
+pbeWithSha1And128BitRc4	1.2.840.113549.1.12.1.1
+pbeWithSha1And3DesCbc	1.2.840.113549.1.12.1.3
+
+<b>Symmetric EncryptionAlg orithms:</b>
+DES CBC	1.3.14.3.2.7
+3DES CBC	1.2.840.113549.3.7
+RC2	1.2.840.113549.3.2
+ArcFour	1.2.840.113549.3.4
+AES CBC 128  	2.16.840.1.101.3.4.1.2
+AES CBC 256	2.16.840.1.101.3.4.1.42x.500
+
+
+<b>Distinguished Name Attributes:</b>
+name	2.5.4.41
+surname	2.5.4.4
+given name	2.5.4.42
+initials	2.5.4.43
+generation qualifier	2.5.4.44
+common name	2.5.4.3
+locality name	2.5.4.7
+state or province name	2.5.4.8
+organization name	2.5.4.10
+organizational unit name	2.5.4.11
+title	2.5.4.12
+dnQualifier	2.5.4.46
+country name	2.5.4.6
+email address	1.2.840.113549.1.9.1
+domain component	0.9.2342.19200300.100.1.25
+street address	2.5.4.9
+postal code	2.5.4.17
+mail	0.9.2342.19200300.100.1.3
+serial number  2.5.4.5
+
+<b>ECC names:</b>
+secp192r1	1.2.840.10045.3.1.1
+secp224r1	1.3.132.0.33
+secp256r1	1.2.840.10045.3.1.7
+secp384r1	1.3.132.0.34
+secp521r1	1.3.132.0.35
+brainpoolP160r1	1.3.36.3.3.2.8.1.1.1
+brainpoolP192r1	1.3.36.3.3.2.8.1.1.3
+brainpoolP224r1	1.3.36.3.3.2.8.1.1.5
+brainpoolP256r1	1.3.36.3.3.2.8.1.1.7
+brainpoolP320r1	1.3.36.3.3.2.8.1.1.9
+brainpoolP384r1	1.3.36.3.3.2.8.1.1.11
+brainpoolP512r1	1.3.36.3.3.2.8.1.1.13
+</pre>
+            </div>
+
+<div>
+<iframe src="./X509_certificate_files/footer.html" width="1200" height="400" frameborder="0" title="footer"></iframe>
+</div>
+</body></html>
